@@ -26,23 +26,26 @@ export const migrateSlugs = onRequest(
     let skipped = 0;
     const results: Array<{ id: string; name: string; slug: string }> = [];
 
+    const bookingEngineBaseUrl = "https://pink.bmspros.com.au/book-now";
+
     for (const doc of snapshot.docs) {
       const data = doc.data();
 
-      // Skip if slug already exists
-      if (data.slug) {
+      // Skip if slug and bookingEngineUrl already exist
+      if (data.slug && data.bookingEngineUrl) {
         skipped++;
         continue;
       }
 
       const businessName = data.name || data.displayName || "salon";
-      const slug = await generateUniqueSlug(businessName);
+      const slug = data.slug || await generateUniqueSlug(businessName);
+      const bookingEngineUrl = `${bookingEngineBaseUrl}/${slug}`;
 
-      await db.collection("users").doc(doc.id).update({ slug });
+      await db.collection("users").doc(doc.id).update({ slug, bookingEngineUrl });
 
       results.push({ id: doc.id, name: businessName, slug });
       migrated++;
-      logger.info(`Migrated: ${businessName} → ${slug}`);
+      logger.info(`Migrated: ${businessName} → ${slug} (${bookingEngineUrl})`);
     }
 
     const summary = {

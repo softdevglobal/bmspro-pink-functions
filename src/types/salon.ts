@@ -13,6 +13,7 @@ export interface SalonOwnerDoc {
   // Business fields
   name: string; // Business name
   slug?: string; // URL-friendly business name (for booking engine)
+  bookingEngineUrl?: string; // Full booking engine URL (e.g., "https://pink.bmspros.com.au/book-now/abc-salon")
   businessType?: string | null;
   abn?: string | null;
   businessStructure?: string | null;

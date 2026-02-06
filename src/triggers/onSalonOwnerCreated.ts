@@ -33,19 +33,27 @@ export const onSalonOwnerCreated = onDocumentCreated(
 
     logger.info(`New salon owner detected: ${data.name} (${userId})`);
 
-    // ── 1. Generate & persist slug ──────────────────────────────────────────
+    // ── 1. Generate & persist slug + bookingEngineUrl ───────────────────────
     let slug = data.slug;
+    const bookingEngineBaseUrl = "https://pink.bmspros.com.au/book-now";
 
     if (!slug) {
       slug = await generateUniqueSlug(data.name || "salon");
-      await db.collection("users").doc(userId).update({ slug });
+      const bookingEngineUrl = `${bookingEngineBaseUrl}/${slug}`;
+      await db.collection("users").doc(userId).update({ slug, bookingEngineUrl });
       logger.info(`Slug "${slug}" assigned to salon owner ${userId}`);
     } else {
+      // Ensure bookingEngineUrl is set even if slug already existed
+      const bookingEngineUrl = `${bookingEngineBaseUrl}/${slug}`;
+      if (!data.bookingEngineUrl) {
+        await db.collection("users").doc(userId).update({ bookingEngineUrl });
+        logger.info(`bookingEngineUrl set for salon owner ${userId}`);
+      }
       logger.info(`Salon owner ${userId} already has slug "${slug}"`);
     }
 
     // ── 2. Construct the public booking link ────────────────────────────────
-    const bookingLink = `https://book.bmspros.com.au/${slug}`;
+    const bookingLink = `${bookingEngineBaseUrl}/${slug}`;
 
     // ── 3. Send the "Your booking page is live" email ───────────────────────
     try {
