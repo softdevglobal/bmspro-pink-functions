@@ -1,0 +1,23 @@
+# Compiled output
+lib/
+
+# Dependencies
+node_modules/
+
+# IDE
+.idea/
+.vscode/
+
+# Environment
+.env
+.env.local
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# OS
+.DS_Store
+Thumbs.db
